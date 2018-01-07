@@ -1,12 +1,9 @@
 function saveOptions() {
-	let h1 = document.querySelector("#highlight-enabled").checked;
-	let h3 = document.querySelector("#highlight-accounts").checked;
+	let h = document.querySelector("#highlight-enabled").checked;
 
 	chrome.storage.local.set({
 		options: {
-			highlightEnabled: h1,
-			highlightAccounts: h3,
-			commentsBySubredditEnabled: c
+			highlightEnabled: h,
 		}
 	}, function() {
 		// Update status to let user know options were saved.
@@ -26,15 +23,13 @@ function saveOptions() {
 
 function defaultOptions() {
 	return {
-		highlightEnabled: true,
-		highlightAccounts: true,
+		highlightEnabled: true
 	};
 }
 
 function restoreOptions() {
 	chrome.storage.local.get({ options: defaultOptions() }, function(o) {
 		document.querySelector("#highlight-enabled").checked = o.options.highlightEnabled;
-		document.querySelector("#highlight-accounts").checked = o.options.highlightAccounts;
 	});
 }
 

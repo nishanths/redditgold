@@ -15,6 +15,7 @@
 				<select id="comment-visits">
 				</select>
 			</div>`;
+			e.title = "redditgold extension"; // to be able to tell the difference
 
 			// add options
 			let s = e.querySelector("#comment-visits");
@@ -82,6 +83,7 @@
 		});
 	};
 
+	// see reddit's initNewCommentHighlighting function
 	let run = (visits) => {
 		let target = document.querySelector("div.content > .commentarea > form.usertext");
 		if (!target) {
@@ -98,7 +100,7 @@
 		let e = new Elem(visits[window.location]);
 		insertAfter(e.elem(), target);
 
-		e.onChange(() => {
+		let handleChange = () => {
 			if (e.value() == "") {
 				// no highlight.
 				clear();
@@ -114,10 +116,13 @@
 			}
 
 			highlight(ts);
-		});
+		}
+
+		$(document).on("new_things_inserted", handleChange); // $ is reddit imported jQuery
+		e.onChange(handleChange);
 	};
 
-	let set = () => {
+	let updateVisits = () => {
 		let now = Date.now();
 
 		chrome.storage.local.get({
@@ -146,16 +151,17 @@
 	};
 
 	let main = () => {
-		// already exists? maybe the account has reddit gold.
 		if (document.querySelector("#comment-visits")) {
-			// set();
-			// return;
+			// already exists? maybe the account has reddit gold.
+			// don't add the element.
+			// also, we don't save visit history either.
+			return;
 		}
 
 		chrome.storage.local.get({
 			visits: {} // {[url: string]: number[]}
 		}, function(o) {
-			set();
+			updateVisits(); // update after getting to ensure that the current visit isn't included
 			if (chrome.runtime.lastError) {
 				console.log("failed to get visits: " + chrome.runtime.lastError);
 				return;
