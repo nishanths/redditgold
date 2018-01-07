@@ -1,7 +1,11 @@
 {
-	"name": "reddit gold",
 	"manifest_version": 2,
+	"name": "reddit gold",
 	"version": "0.1.0",
+
+	"description": "Adds new comment highlighting to reddit",
+	"homepage_url": "https://github.com/nishanths/redditgold",
+
 	"options_ui": {
 		"page": "options/options.html",
 		"chrome_style": true
