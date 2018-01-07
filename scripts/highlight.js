@@ -118,7 +118,7 @@
 			highlight(ts);
 		}
 
-		$(document).on("new_things_inserted", handleChange); // $ is reddit imported jQuery
+		window.$(document).on("new_things_inserted", handleChange); // $ is reddit imported jQuery
 		e.onChange(handleChange);
 	};
 
@@ -127,6 +127,7 @@
 
 		chrome.storage.local.get({
 			visits: {},
+			options: defaultOptions()
 		}, function(o) {
 			if (chrome.runtime.lastError) {
 				console.log("failed to get visits: " + chrome.runtime.lastError);
@@ -141,7 +142,8 @@
 			}
 
 			chrome.storage.local.set({
-				visits: v
+				visits: v,
+				options: o.options
 			}, function() {
 				if (chrome.runtime.lastError) {
 					console.log("failed to set visits: " + chrome.runtime.lastError);
@@ -154,13 +156,18 @@
 		if (document.querySelector("#comment-visits")) {
 			// already exists? maybe the account has reddit gold.
 			// don't add the element.
-			// also, we don't save visit history either.
+			// also, we don't save visit history either because we don't know
+			// at this point if comment highlight is enabled in the user's options.
 			return;
 		}
 
 		chrome.storage.local.get({
-			visits: {} // {[url: string]: number[]}
+			visits: {}, // {[url: string]: number[]}
+			options: defaultOptions()
 		}, function(o) {
+			if (!o.options.highlightEnabled) {
+				return;
+			}
 			updateVisits(); // update after getting to ensure that the current visit isn't included
 			if (chrome.runtime.lastError) {
 				console.log("failed to get visits: " + chrome.runtime.lastError);

@@ -19,7 +19,7 @@
 				"*://www.reddit.com/r/*/comments/*"
 			],
 			"run_at": "document_end",
-			"js": ["scripts/timeago.js", "scripts/highlight.js"]
+			"js": ["shared/options.js", "scripts/timeago.js", "scripts/highlight.js"]
 		}
 	]
 }

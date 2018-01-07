@@ -21,12 +21,6 @@ function saveOptions() {
 	});
 }
 
-function defaultOptions() {
-	return {
-		highlightEnabled: true
-	};
-}
-
 function restoreOptions() {
 	chrome.storage.local.get({ options: defaultOptions() }, function(o) {
 		document.querySelector("#highlight-enabled").checked = o.options.highlightEnabled;
