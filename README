@@ -3,7 +3,7 @@ very comfortable. This extension adds new comment highlighting to non-gold
 reddit.
 
 Customize the extensions's options by visiting chrome://extensions. The
-default hightlighting colors are the ones from /r/soccer.
+default highlighting colors are the ones from /r/soccer.
 
 The extension does not sync last visit times across computers. (Doing so
 would require sending this data to Google servers.) So visit times for

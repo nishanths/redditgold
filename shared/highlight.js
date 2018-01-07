@@ -5,14 +5,14 @@ let forEachComment = (cb) => {
   }
 };
 
-function clear() {
+let clear = () => {
   forEachComment(c => {
     c.classList.remove("new-comment");
   });
-}
+};
 
 // Highlights comments after the given timestamp.
-function highlight(timestamp) {
+let highlight = (timestamp) => {
   forEachComment(c => {
     let t = c.querySelector(".entry .tagline time:first-of-type");
     if (!t) {
@@ -21,9 +21,14 @@ function highlight(timestamp) {
     let commentTimestamp = new Date(t.getAttribute("datetime")).getTime();
     c.classList.toggle("new-comment", commentTimestamp > timestamp);
   });
-}
+};
 
-function handleChange(val) {
+let selectedTimestamp = () => {
+  return document.querySelector("#comment-visits").value;
+};
+
+function handleHighlight() {
+  let val = selectedTimestamp();
   if (val == "") {
     // no highlight.
     clear();
@@ -40,6 +45,3 @@ function handleChange(val) {
   highlight(ts);
 }
 
-function selectedTimestamp() {
-  return document.querySelector("#comment-visits").value;
-}

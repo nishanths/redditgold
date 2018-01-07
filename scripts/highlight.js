@@ -5,7 +5,7 @@
 
   let visitsKey = (loc) => {
     return loc.pathname;
-  }
+  };
 
   // Elem is this element: https://imgur.com/a/P6M10.
   class Elem {
@@ -60,7 +60,8 @@
 
   // see reddit's initNewCommentHighlighting function
   let run = (visits) => {
-    let target = document.querySelector("div.content > .commentarea > form.usertext");
+    let target = document.querySelector("div.content > .commentarea > form.usertext") || // signed in
+      document.querySelector("section.commentsignupbar"); // signed out
     if (!target) {
       console.log("failed to find comment box to add highlight selector");
       return;
@@ -76,8 +77,10 @@
     insertAfter(e.elem(), target);
 
     e.onChange(() => {
-      handleChange(selectedTimestamp());
+      handleHighlight();
     });
+
+    handleHighlight(); // initial
   };
 
   let updateVisits = () => {
@@ -138,7 +141,7 @@
       // don't add the element. also, we don't save visit history either
       // because we don't know at this point if comment highlight is enabled
       // in the user's options.
-      // return;
+      return;
     }
 
     injectScript(chrome.extension.getURL("shared/highlight.js"), "body");
