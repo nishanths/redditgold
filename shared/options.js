@@ -1,5 +1,5 @@
 function defaultOptions() {
-	return {
-		highlightEnabled: true
-	};
+  return {
+    highlightEnabled: true
+  };
 }
