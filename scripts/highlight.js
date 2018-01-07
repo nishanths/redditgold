@@ -3,6 +3,10 @@
     referenceNode.parentNode.insertBefore(newNode, referenceNode.nextSibling);
   };
 
+  let visitsKey = (loc) => {
+    return loc.pathname;
+  }
+
   // Elem is this element: https://imgur.com/a/P6M10.
   class Elem {
     constructor(visitTimestamps) {
@@ -91,13 +95,13 @@
       return;
     }
 
-    if (!visits[window.location] ||
-      visits[window.location].length == 0 /* this shouldn't be possible the way the code is written */) {
+    if (!visits[visitsKey(window.location)] ||
+      visits[visitsKey(window.location)].length == 0 /* this shouldn't be possible the way the code is written */) {
       // no previous visit
       return;
     }
 
-    let e = new Elem(visits[window.location]);
+    let e = new Elem(visits[visitsKey(window.location)]);
     insertAfter(e.elem(), target);
 
     let handleChange = () => {
@@ -136,9 +140,9 @@
 
       let v = o.visits;
       if (v[window.location]) {
-        v[window.location].push(now);
+        v[visitsKey(window.location)].push(now);
       } else {
-        v[window.location] = [now];
+        v[visitsKey(window.location)] = [now];
       }
 
       chrome.storage.local.set({
