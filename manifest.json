@@ -1,7 +1,7 @@
 {
 	"manifest_version": 2,
 	"name": "reddit gold",
-	"version": "0.1.0",
+	"version": "0.2.0",
 
 	"description": "Adds new comment highlighting to reddit",
 	"homepage_url": "https://github.com/nishanths/redditgold",
