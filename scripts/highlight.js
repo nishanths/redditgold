@@ -28,7 +28,8 @@
         let ts = visitTimestamps[i];
         let opt = document.createElement("option");
         opt.value = ts;
-        opt.textContent = timeago.format(ts);
+        let text = timeago.format(ts);
+        opt.textContent = (text == "just now" || text == "right now") ? "a few moments ago" : text;
         s.appendChild(opt);
       }
 
@@ -67,8 +68,7 @@
       return;
     }
 
-    if (!visits[visitsKey(window.location)] ||
-      visits[visitsKey(window.location)].length == 0 /* this shouldn't be possible the way the code is written */) {
+    if (!visits[visitsKey(window.location)]) {
       // no previous visit
       return;
     }
@@ -83,33 +83,23 @@
     handleHighlight(); // initial
   };
 
-  let updateVisits = () => {
+  let updateVisits = (o) => {
     let now = Date.now();
 
-    chrome.storage.local.get({
-      visits: {},
-      options: defaultOptions()
-    }, function(o) {
+    let v = o.visits;
+    if (v[visitsKey(window.location)]) {
+      v[visitsKey(window.location)].push(now);
+    } else {
+      v[visitsKey(window.location)] = [now];
+    }
+
+    chrome.storage.local.set({
+      visits: v,
+      options: o.options
+    }, function() {
       if (chrome.runtime.lastError) {
-        console.log("failed to get visits: " + chrome.runtime.lastError);
-        return;
+        console.log("failed to set visits: " + chrome.runtime.lastError);
       }
-
-      let v = o.visits;
-      if (v[visitsKey(window.location)]) {
-        v[visitsKey(window.location)].push(now);
-      } else {
-        v[visitsKey(window.location)] = [now];
-      }
-
-      chrome.storage.local.set({
-        visits: v,
-        options: o.options
-      }, function() {
-        if (chrome.runtime.lastError) {
-          console.log("failed to set visits: " + chrome.runtime.lastError);
-        }
-      });
     });
   };
 
@@ -127,12 +117,11 @@
   };
 
   // https://gist.github.com/nok/a98c7c5ce0d0803b42da50c4b901ef84
-  let injectScript = (path, tag) => {
-    let node = document.getElementsByTagName(tag)[0];
+  let injectScript = path => {
     let script = document.createElement("script");
     script.setAttribute("type", "text/javascript");
     script.setAttribute("src", path);
-    node.appendChild(script);
+    document.body.appendChild(script);
   };
 
   let main = () => {
@@ -144,22 +133,22 @@
       return;
     }
 
-    injectScript(chrome.extension.getURL("shared/highlight.js"), "body");
-    injectScript(chrome.extension.getURL("scripts/top.js"), "body");
+    injectScript(chrome.extension.getURL("shared/highlight.js"));
+    injectScript(chrome.extension.getURL("scripts/top.js"));
 
     chrome.storage.local.get({
       visits: {}, // {[url: string]: number[]}
       options: defaultOptions()
     }, function(o) {
-      if (!o.options.highlight.enabled) {
-        return;
-      }
-      updateVisits(); // update after getting to ensure that the current visit isn't included
-      maybeAddStyles(o.options.highlight);
       if (chrome.runtime.lastError) {
         console.log("failed to get visits: " + chrome.runtime.lastError);
         return;
       }
+      if (!o.options.highlight.enabled) {
+        return;
+      }
+      updateVisits(o); // update after getting, in order to ensure that the current visit isn't included
+      maybeAddStyles(o.options.highlight);
       run(o.visits);
     });
   };

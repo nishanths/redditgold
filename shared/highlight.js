@@ -27,7 +27,7 @@ let selectedTimestamp = () => {
   return document.querySelector("#comment-visits").value;
 };
 
-function handleHighlight() {
+let handleHighlight = () => {
   let val = selectedTimestamp();
   if (val == "") {
     // no highlight.

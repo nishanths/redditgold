@@ -1,4 +1,4 @@
-function defaultOptions() {
+let defaultOptions = () => {
   return {
     highlight: {
       enabled: true,
