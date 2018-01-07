@@ -53,39 +53,10 @@
       return this.s;
     }
 
-    value() {
-      return this.sel().value;
-    }
-
     onChange(cb) {
       this.sel().addEventListener("change", cb);
     }
   }
-
-  let forEachComment = (cb) => {
-    let comments = document.querySelectorAll(".comment");
-    for (let i = 0; i < comments.length; i++) {
-      cb(comments[i]);
-    }
-  };
-
-  let clear = () => {
-    forEachComment(c => {
-      c.classList.remove("new-comment");
-    });
-  };
-
-  // Highlights comments after the given timestamp.
-  let highlight = (timestamp) => {
-    forEachComment(c => {
-      let t = c.querySelector(".entry .tagline time:first-of-type");
-      if (!t) {
-        return;
-      }
-      let commentTimestamp = new Date(t.getAttribute("datetime")).getTime();
-      c.classList.toggle("new-comment", commentTimestamp > timestamp);
-    });
-  };
 
   // see reddit's initNewCommentHighlighting function
   let run = (visits) => {
@@ -104,26 +75,9 @@
     let e = new Elem(visits[visitsKey(window.location)]);
     insertAfter(e.elem(), target);
 
-    let handleChange = () => {
-      if (e.value() == "") {
-        // no highlight.
-        clear();
-        return;
-      }
-
-      let ts;
-      try {
-        ts = parseInt(e.value(), 10);
-      } catch(ex) {
-        console.log("failed to parse value '%s' as int: %s", e.value(), ex);
-        return;
-      }
-
-      highlight(ts);
-    }
-
-    window.$(document).on("new_things_inserted", handleChange); // $ is reddit imported jQuery
-    e.onChange(handleChange);
+    e.onChange(() => {
+      handleChange(selectedTimestamp());
+    });
   };
 
   let updateVisits = () => {
@@ -139,7 +93,7 @@
       }
 
       let v = o.visits;
-      if (v[window.location]) {
+      if (v[visitsKey(window.location)]) {
         v[visitsKey(window.location)].push(now);
       } else {
         v[visitsKey(window.location)] = [now];
@@ -156,23 +110,49 @@
     });
   };
 
-  let main = () => {
-    if (document.querySelector("#comment-visits")) {
-      // already exists? maybe the account has reddit gold.
-      // don't add the element.
-      // also, we don't save visit history either because we don't know
-      // at this point if comment highlight is enabled in the user's options.
-      return;
+  let maybeAddStyles = (h) => {
+    if (h.customBackgroundColor != "") {
+      let s = document.createElement("style");
+      s.textContent = `.new-comment .usertext-body { background-color: ${h.customBackgroundColor} !important; }`;
+      document.head.appendChild(s);
     }
+    if (h.customBorder != "") {
+      let s = document.createElement("style");
+      s.textContent = `.new-comment .usertext-body { border: ${h.customBorder} !important; }`;
+      document.head.appendChild(s);
+    }
+  };
+
+  // https://gist.github.com/nok/a98c7c5ce0d0803b42da50c4b901ef84
+  let injectScript = (path, tag) => {
+    let node = document.getElementsByTagName(tag)[0];
+    let script = document.createElement("script");
+    script.setAttribute("type", "text/javascript");
+    script.setAttribute("src", path);
+    node.appendChild(script);
+  };
+
+  let main = () => {
+    if (document.querySelector("body.gold")) {
+      // account has reddit gold.
+      // don't add the element. also, we don't save visit history either
+      // because we don't know at this point if comment highlight is enabled
+      // in the user's options.
+      // return;
+    }
+
+    injectScript(chrome.extension.getURL("shared/highlight.js"), "body");
+    injectScript(chrome.extension.getURL("scripts/top.js"), "body");
 
     chrome.storage.local.get({
       visits: {}, // {[url: string]: number[]}
       options: defaultOptions()
     }, function(o) {
-      if (!o.options.highlightEnabled) {
+      if (!o.options.highlight.enabled) {
         return;
       }
       updateVisits(); // update after getting to ensure that the current visit isn't included
+      maybeAddStyles(o.options.highlight);
       if (chrome.runtime.lastError) {
         console.log("failed to get visits: " + chrome.runtime.lastError);
         return;

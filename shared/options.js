@@ -1,5 +1,9 @@
 function defaultOptions() {
   return {
-    highlightEnabled: true
+    highlight: {
+      enabled: true,
+      customBackgroundColor: "#f6f8e5",
+      customBorder: "solid 1px #ecf8e5",
+    }
   };
 }

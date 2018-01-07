@@ -2,8 +2,10 @@ I received reddit gold and found the ability to highlight new comments
 very comfortable. This extension adds new comment highlighting to non-gold
 reddit.
 
-Customize the extensions's options by visiting chrome://extensions.
+Customize the extensions's options by visiting chrome://extensions. The
+default hightlighting colors are the ones from /r/soccer.
 
 The extension does not sync last visit times across computers. (Doing so
-would require sending this data to Google servers.) So comment
-highlighting is local to each computer.
+would require sending this data to Google servers.) So visit times for
+comment highlighting is local to each computer. The visit times,
+however, are shared across all accounts on a local machine.
