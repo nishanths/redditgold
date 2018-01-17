@@ -24,12 +24,28 @@
       // add options
       let s = e.querySelector("#comment-visits");
       let timeago = window.timeago();
+
+      // whether we already have an instance of "just now".
+      // feels like bad UX to have multiple entries of this kind, so we only
+      // show one at most.
+      let justNow = false;
+
       for (let i = visitTimestamps.length - 1; i >= 0; i--) {
         let ts = visitTimestamps[i];
         let opt = document.createElement("option");
         opt.value = ts;
         let text = timeago.format(ts);
-        opt.textContent = (text == "just now" || text == "right now") ? "a few moments ago" : text;
+
+        if (text == "just now" || text == "right now") {
+          if (justNow) {
+            continue // already seen.
+          }
+          justNow = true;
+          opt.textContent = "a few moments ago"; // "a few moments ago" is more understandable in this context
+        } else {
+          opt.textContent = text;
+        }
+
         s.appendChild(opt);
       }
 
